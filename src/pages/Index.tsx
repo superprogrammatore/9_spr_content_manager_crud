@@ -4,8 +4,10 @@ import { BookOpen, Code, Database } from "lucide-react";
 import { ContentForm } from "@/components/ContentForm";
 import { ContentList } from "@/components/ContentList";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
+import { DatabaseAnimation } from "@/components/DatabaseAnimation";
 import { InfoBox } from "@/components/InfoBox";
 import { Content, ContentFormData } from "@/types/content";
+import { useDatabaseAnimation } from "@/hooks/useDatabaseAnimation";
 import { toast } from "@/hooks/use-toast";
 
 /**
@@ -54,6 +56,9 @@ const Index = () => {
     contentTitle: string;
   }>({ isOpen: false, contentId: "", contentTitle: "" });
 
+  // Hook per animazioni database
+  const { operation, isAnimating, triggerAnimation } = useDatabaseAnimation(1000);
+
   /**
    * 🆕 CREATE - Crea un nuovo contenuto
    * 
@@ -63,6 +68,9 @@ const Index = () => {
    * 3. Inserisce il nuovo record nell'array (simula INSERT INTO)
    */
   const handleCreate = (data: ContentFormData) => {
+    // Attiva animazione CREATE
+    triggerAnimation("create");
+
     const newContent: Content = {
       id: Date.now().toString(), // In produzione: UUID o ID dal database
       ...data,
@@ -71,12 +79,13 @@ const Index = () => {
     };
 
     // Aggiungi all'inizio della lista (ordine cronologico inverso)
-    setContents(prev => [newContent, ...prev]);
-
-    toast({
-      title: "✅ Contenuto creato!",
-      description: `"${data.title}" è stato aggiunto con successo.`,
-    });
+    setTimeout(() => {
+      setContents(prev => [newContent, ...prev]);
+      toast({
+        title: "✅ Contenuto creato!",
+        description: `"${data.title}" è stato aggiunto con successo.`,
+      });
+    }, 800);
   };
 
   /**
@@ -92,22 +101,27 @@ const Index = () => {
   const handleUpdate = (data: ContentFormData) => {
     if (!editingContent) return;
 
-    setContents(prev => prev.map(content => 
-      content.id === editingContent.id
-        ? {
-            ...content,
-            ...data,
-            updatedAt: new Date(), // Aggiorna il timestamp
-          }
-        : content
-    ));
+    // Attiva animazione UPDATE
+    triggerAnimation("update");
 
-    setEditingContent(null);
+    setTimeout(() => {
+      setContents(prev => prev.map(content => 
+        content.id === editingContent.id
+          ? {
+              ...content,
+              ...data,
+              updatedAt: new Date(), // Aggiorna il timestamp
+            }
+          : content
+      ));
 
-    toast({
-      title: "✏️ Contenuto aggiornato!",
-      description: `"${data.title}" è stato modificato con successo.`,
-    });
+      setEditingContent(null);
+
+      toast({
+        title: "✏️ Contenuto aggiornato!",
+        description: `"${data.title}" è stato modificato con successo.`,
+      });
+    }, 800);
   };
 
   /**
@@ -121,15 +135,20 @@ const Index = () => {
    * ⚠️ Attenzione: l'eliminazione è permanente!
    */
   const handleDelete = () => {
-    setContents(prev => prev.filter(content => content.id !== deleteDialog.contentId));
-    
-    setDeleteDialog({ isOpen: false, contentId: "", contentTitle: "" });
+    // Attiva animazione DELETE
+    triggerAnimation("delete");
 
-    toast({
-      title: "🗑️ Contenuto eliminato!",
-      description: "Il contenuto è stato rimosso definitivamente.",
-      variant: "destructive",
-    });
+    setTimeout(() => {
+      setContents(prev => prev.filter(content => content.id !== deleteDialog.contentId));
+      
+      setDeleteDialog({ isOpen: false, contentId: "", contentTitle: "" });
+
+      toast({
+        title: "🗑️ Contenuto eliminato!",
+        description: "Il contenuto è stato rimosso definitivamente.",
+        variant: "destructive",
+      });
+    }, 800);
   };
 
   // Handler per aprire dialog di conferma eliminazione
@@ -151,6 +170,14 @@ const Index = () => {
     } else {
       handleCreate(data);
     }
+  };
+
+  // Handler per iniziare la modifica (attiva animazione READ)
+  const handleStartEdit = (content: Content) => {
+    triggerAnimation("read");
+    setTimeout(() => {
+      setEditingContent(content);
+    }, 500);
   };
 
   return (
@@ -228,7 +255,7 @@ const Index = () => {
           <div>
             <ContentList
               contents={contents}
-              onEdit={setEditingContent}
+              onEdit={handleStartEdit}
               onDelete={openDeleteDialog}
             />
           </div>
@@ -259,6 +286,9 @@ const Index = () => {
         onConfirm={handleDelete}
         onCancel={() => setDeleteDialog({ isOpen: false, contentId: "", contentTitle: "" })}
       />
+
+      {/* Database Animation Overlay */}
+      <DatabaseAnimation operation={operation} isAnimating={isAnimating} />
     </div>
   );
 };
