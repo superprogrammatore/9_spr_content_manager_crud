@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, Code, Database } from "lucide-react";
+import { BookOpen, Code, Database, Sparkles, Zap } from "lucide-react";
 import { ContentForm } from "@/components/ContentForm";
 import { ContentList } from "@/components/ContentList";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
@@ -61,24 +61,17 @@ const Index = () => {
 
   /**
    * 🆕 CREATE - Crea un nuovo contenuto
-   * 
-   * Questa funzione:
-   * 1. Genera un ID univoco
-   * 2. Aggiunge i timestamp
-   * 3. Inserisce il nuovo record nell'array (simula INSERT INTO)
    */
   const handleCreate = (data: ContentFormData) => {
-    // Attiva animazione CREATE
     triggerAnimation("create");
 
     const newContent: Content = {
-      id: Date.now().toString(), // In produzione: UUID o ID dal database
+      id: Date.now().toString(),
       ...data,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
-    // Aggiungi all'inizio della lista (ordine cronologico inverso)
     setTimeout(() => {
       setContents(prev => [newContent, ...prev]);
       toast({
@@ -90,28 +83,16 @@ const Index = () => {
 
   /**
    * 🔄 UPDATE - Aggiorna un contenuto esistente
-   * 
-   * Questa funzione:
-   * 1. Trova il record tramite ID
-   * 2. Aggiorna solo i campi modificati
-   * 3. Aggiorna il timestamp updatedAt
-   * 
-   * Equivale a: UPDATE contents SET ... WHERE id = ?
    */
   const handleUpdate = (data: ContentFormData) => {
     if (!editingContent) return;
 
-    // Attiva animazione UPDATE
     triggerAnimation("update");
 
     setTimeout(() => {
       setContents(prev => prev.map(content => 
         content.id === editingContent.id
-          ? {
-              ...content,
-              ...data,
-              updatedAt: new Date(), // Aggiorna il timestamp
-            }
+          ? { ...content, ...data, updatedAt: new Date() }
           : content
       ));
 
@@ -126,21 +107,12 @@ const Index = () => {
 
   /**
    * 🗑️ DELETE - Elimina un contenuto
-   * 
-   * Questa funzione:
-   * 1. Filtra via il record con l'ID specificato
-   * 
-   * Equivale a: DELETE FROM contents WHERE id = ?
-   * 
-   * ⚠️ Attenzione: l'eliminazione è permanente!
    */
   const handleDelete = () => {
-    // Attiva animazione DELETE
     triggerAnimation("delete");
 
     setTimeout(() => {
       setContents(prev => prev.filter(content => content.id !== deleteDialog.contentId));
-      
       setDeleteDialog({ isOpen: false, contentId: "", contentTitle: "" });
 
       toast({
@@ -151,7 +123,6 @@ const Index = () => {
     }, 800);
   };
 
-  // Handler per aprire dialog di conferma eliminazione
   const openDeleteDialog = (id: string) => {
     const content = contents.find(c => c.id === id);
     if (content) {
@@ -163,7 +134,6 @@ const Index = () => {
     }
   };
 
-  // Handler per gestire submit del form (CREATE o UPDATE)
   const handleFormSubmit = (data: ContentFormData) => {
     if (editingContent) {
       handleUpdate(data);
@@ -172,7 +142,6 @@ const Index = () => {
     }
   };
 
-  // Handler per iniziare la modifica (attiva animazione READ)
   const handleStartEdit = (content: Content) => {
     triggerAnimation("read");
     setTimeout(() => {
@@ -181,55 +150,152 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Animated background particles */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        {[...Array(15)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 rounded-full bg-primary/10"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [-20, 20, -20],
+              x: [-10, 10, -10],
+              opacity: [0.2, 0.5, 0.2],
+              scale: [0.8, 1.2, 0.8],
+            }}
+            transition={{
+              duration: 5 + Math.random() * 5,
+              repeat: Infinity,
+              delay: Math.random() * 3,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
+      </div>
+
       {/* Header */}
       <motion.header
-        initial={{ opacity: 0, y: -30 }}
+        initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-40"
+        transition={{ 
+          duration: 0.6, 
+          type: "spring",
+          stiffness: 100
+        }}
+        className="border-b bg-card/80 backdrop-blur-md sticky top-0 z-40"
       >
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <motion.div 
               className="flex items-center gap-4"
               whileHover={{ scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300 }}
             >
               <motion.div
-                animate={{ rotate: [0, 5, -5, 0] }}
-                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-                className="p-3 rounded-xl bg-primary/20"
+                className="relative p-3 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 cursor-pointer"
+                whileHover={{ rotate: 10, scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <Database className="h-8 w-8 text-primary" />
+                <motion.div
+                  animate={{ 
+                    rotate: [0, 5, -5, 0],
+                    scale: [1, 1.1, 1]
+                  }}
+                  transition={{ 
+                    duration: 3, 
+                    repeat: Infinity, 
+                    repeatDelay: 2 
+                  }}
+                >
+                  <Database className="h-8 w-8 text-primary" />
+                </motion.div>
+                
+                {/* Orbital particles */}
+                {[...Array(3)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-1.5 h-1.5 rounded-full bg-accent"
+                    style={{
+                      top: "50%",
+                      left: "50%",
+                    }}
+                    animate={{
+                      x: [
+                        Math.cos((i * 120 * Math.PI) / 180) * 20,
+                        Math.cos(((i * 120 + 360) * Math.PI) / 180) * 20,
+                      ],
+                      y: [
+                        Math.sin((i * 120 * Math.PI) / 180) * 20,
+                        Math.sin(((i * 120 + 360) * Math.PI) / 180) * 20,
+                      ],
+                    }}
+                    transition={{
+                      duration: 4,
+                      repeat: Infinity,
+                      ease: "linear",
+                      delay: i * 0.3,
+                    }}
+                  />
+                ))}
               </motion.div>
+              
               <div>
-                <h1 className="text-2xl font-bold">Content Manager</h1>
-                <p className="text-sm text-muted-foreground">
+                <motion.h1 
+                  className="text-2xl font-bold flex items-center gap-2"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  Content Manager
+                  <motion.span
+                    animate={{ rotate: [0, 15, -15, 0], scale: [1, 1.2, 1] }}
+                    transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                  >
+                    <Sparkles className="h-5 w-5 text-accent" />
+                  </motion.span>
+                </motion.h1>
+                <motion.p 
+                  className="text-sm text-muted-foreground"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
                   Esercizio CRUD Didattico
-                </p>
+                </motion.p>
               </div>
             </motion.div>
             
             <motion.div 
-              className="flex items-center gap-2 text-sm text-muted-foreground"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
+              className="flex items-center gap-3 text-sm text-muted-foreground bg-muted/50 backdrop-blur-sm px-4 py-2 rounded-full border"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 }}
+              whileHover={{ scale: 1.05, backgroundColor: "hsl(var(--muted))" }}
             >
-              <Code className="h-4 w-4" />
-              <span>Create • Read • Update • Delete</span>
+              <motion.div
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+              >
+                <Code className="h-4 w-4" />
+              </motion.div>
+              <span className="hidden sm:inline">Create • Read • Update • Delete</span>
+              <span className="sm:hidden">CRUD</span>
             </motion.div>
           </div>
         </div>
       </motion.header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 relative z-10">
         {/* Intro Section */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.3, type: "spring" }}
           className="mb-8"
         >
           <InfoBox title="📚 Cos'è il CRUD?" variant="tip">
@@ -241,41 +307,66 @@ const Index = () => {
         </motion.div>
 
         {/* Two Column Layout */}
-        <div className="grid lg:grid-cols-2 gap-8">
+        <motion.div 
+          className="grid lg:grid-cols-2 gap-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+        >
           {/* Left Column: Form */}
-          <div>
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5, type: "spring", stiffness: 100 }}
+          >
             <ContentForm
               onSubmit={handleFormSubmit}
               editingContent={editingContent}
               onCancelEdit={() => setEditingContent(null)}
             />
-          </div>
+          </motion.div>
 
           {/* Right Column: List */}
-          <div>
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.6, type: "spring", stiffness: 100 }}
+          >
             <ContentList
               contents={contents}
               onEdit={handleStartEdit}
               onDelete={openDeleteDialog}
             />
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </main>
 
       {/* Footer */}
       <motion.footer
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="border-t bg-card/50 py-6 mt-12"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+        className="border-t bg-card/80 backdrop-blur-md py-8 mt-12 relative z-10"
       >
         <div className="container mx-auto px-4 text-center">
-          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-            <BookOpen className="h-4 w-4" />
-            <span>
-              App didattica per imparare le operazioni CRUD
-            </span>
-          </div>
+          <motion.div 
+            className="flex items-center justify-center gap-3 text-sm text-muted-foreground"
+            whileHover={{ scale: 1.02 }}
+          >
+            <motion.div
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+            >
+              <BookOpen className="h-5 w-5" />
+            </motion.div>
+            <span>App didattica per imparare le operazioni CRUD</span>
+            <motion.div
+              animate={{ scale: [1, 1.2, 1], rotate: [0, 180, 360] }}
+              transition={{ duration: 2, repeat: Infinity, repeatDelay: 2 }}
+            >
+              <Zap className="h-4 w-4 text-accent" />
+            </motion.div>
+          </motion.div>
         </div>
       </motion.footer>
 
