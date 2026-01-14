@@ -452,6 +452,8 @@ export const ContentForm = ({ onSubmit, editingContent, onCancelEdit }: ContentF
               onValueChange={(value) => {
                 setFormData(prev => ({ ...prev, category: value }));
                 setTouched(prev => ({ ...prev, category: true }));
+                // Rimuovi l'errore categoria immediatamente quando viene selezionata
+                setErrors(prev => ({ ...prev, category: undefined }));
               }}
             >
               <SelectTrigger 
