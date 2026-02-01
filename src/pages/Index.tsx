@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, Code, Database, Sparkles, Zap } from "lucide-react";
+import { BookOpen, Code, Database, Sparkles, Zap, LogOut } from "lucide-react";
 import { ContentForm } from "@/components/ContentForm";
 import { ContentList } from "@/components/ContentList";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
@@ -8,6 +8,7 @@ import { DatabaseAnimation } from "@/components/DatabaseAnimation";
 import { InfoBox } from "@/components/InfoBox";
 import { Content, ContentFormData } from "@/types/content";
 import { useDatabaseAnimation } from "@/hooks/useDatabaseAnimation";
+import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 
 /**
@@ -42,7 +43,11 @@ const initialContents: Content[] = [
   },
 ];
 
-const Index = () => {
+interface IndexProps {
+  onLogout?: () => void;
+}
+
+const Index = ({ onLogout }: IndexProps) => {
   // State: lista dei contenuti (simula un database)
   const [contents, setContents] = useState<Content[]>(initialContents);
   
@@ -269,22 +274,44 @@ const Index = () => {
               </div>
             </motion.div>
             
-            <motion.div 
-              className="flex items-center gap-3 text-sm text-muted-foreground bg-muted/50 backdrop-blur-sm px-4 py-2 rounded-full border"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
-              whileHover={{ scale: 1.05, backgroundColor: "hsl(var(--muted))" }}
-            >
-              <motion.div
-                animate={{ rotate: [0, 360] }}
-                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+            <div className="flex items-center gap-3">
+              <motion.div 
+                className="flex items-center gap-3 text-sm text-muted-foreground bg-muted/50 backdrop-blur-sm px-4 py-2 rounded-full border"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+                whileHover={{ scale: 1.05, backgroundColor: "hsl(var(--muted))" }}
               >
-                <Code className="h-4 w-4" />
+                <motion.div
+                  animate={{ rotate: [0, 360] }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                >
+                  <Code className="h-4 w-4" />
+                </motion.div>
+                <span className="hidden sm:inline">Create • Read • Update • Delete</span>
+                <span className="sm:hidden">CRUD</span>
               </motion.div>
-              <span className="hidden sm:inline">Create • Read • Update • Delete</span>
-              <span className="sm:hidden">CRUD</span>
-            </motion.div>
+
+              {onLogout && (
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={onLogout}
+                    className="gap-2"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span className="hidden sm:inline">Esci</span>
+                  </Button>
+                </motion.div>
+              )}
+            </div>
           </div>
         </div>
       </motion.header>
