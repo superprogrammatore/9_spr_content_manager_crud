@@ -300,14 +300,6 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
               </motion.div>
             </form>
 
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="text-xs text-center text-muted-foreground mt-4"
-            >
-              🔐 Il codice viene verificato tramite hash SHA-256
-            </motion.p>
           </CardContent>
         </Card>
       </motion.div>
