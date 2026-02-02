@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, Unlock, KeyRound, ShieldCheck, AlertCircle, Sparkles } from "lucide-react";
+import { Lock, Unlock, KeyRound, ShieldCheck, AlertCircle } from "lucide-react";
+import superProgrammatoreLogo from "@/assets/super-programmatore-logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -112,6 +113,20 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
           />
 
           <CardHeader className="text-center pb-2">
+            {/* Logo Super Programmatore */}
+            <motion.div
+              className="mx-auto mb-6"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, type: "spring" }}
+            >
+              <img 
+                src={superProgrammatoreLogo} 
+                alt="Super Programmatore" 
+                className="w-48 h-auto mx-auto"
+              />
+            </motion.div>
+
             <motion.div
               className="mx-auto mb-4 relative"
               animate={isUnlocking ? { scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] } : {}}
@@ -189,12 +204,6 @@ export const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
 
             <CardTitle className="text-2xl flex items-center justify-center gap-2">
               Content Manager
-              <motion.span
-                animate={{ rotate: [0, 15, -15, 0], scale: [1, 1.2, 1] }}
-                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-              >
-                <Sparkles className="h-5 w-5 text-accent" />
-              </motion.span>
             </CardTitle>
             <CardDescription className="flex items-center justify-center gap-2 mt-2">
               <ShieldCheck className="w-4 h-4" />
